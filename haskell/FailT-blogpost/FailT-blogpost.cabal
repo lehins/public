@@ -26,6 +26,8 @@ tested-with:         GHC == 8.0.2
 library
   hs-source-dirs:      src
   exposed-modules:     Lib
+                     , FailT.Array
+                     , FailT.ExceptT
 
   other-modules:
   build-depends:       FailT

@@ -5,6 +5,8 @@
 -- Maintainer  : Alexey Kuleshevich <alexey@kuleshevi.ch>
 -- Stability   : experimental
 -- Portability : non-portable
+{-# LANGUAGE TypeApplications #-}
+
 module Lib where
 
 import Control.Applicative
@@ -48,19 +50,6 @@ patternMatchFailure mh = do
   Just h <- pure mh
   mkHour h
 
-setHourArray :: STArray s Int Hour -> StateT Int (FailT (ST s)) ()
-setHourArray arr = do
-  ix <- get
-  h <- mkHour $ toInteger ix
-  lift $ lift $ writeArray arr ix h
-  put (ix + 1)
-
-hoursArray :: Int -> Array Int Hour
-hoursArray n = runSTArray $ do
-  mArr <- newArray_ (0, n - 1)
-  throwFailT $ evalStateT (replicateM_ n (setHourArray mArr)) 0
-  pure mArr
-
 mkHourEither :: Integer -> Either String Hour
 mkHourEither h
   | h < 0 = Left $ "Hour cannot be negative, but got: " ++ show h
@@ -84,3 +73,9 @@ parseWeekend :: (Alternative f, MonadFail f) => String -> f DayOfTheWeek
 parseWeekend str =
   (if str == "Sunday" then pure Sunday else fail "Not Sunday")
     <|> (if str == "Saturday" then pure Saturday else fail "Not Saturday")
+
+-- | Return `Nothing` whenever a `Right` is supplied and `Just` value otherwise
+leftToJust :: Either a b -> Maybe a
+leftToJust e = do
+  Left r <- Just e
+  Just r
