@@ -1,5 +1,7 @@
 resolver: lts-20.5
 packages:
 - .
+- ../../../FailT
 extra-deps:
-- FailT-0.1.0.1@sha256:f76b37732348ff890afb13adc747bb1a5ad9ffb618748fdc373fc39a77c9ee7c,2593
+- either-result-0.3.1.0
+# - FailT-0.1.0.1@sha256:f76b37732348ff890afb13adc747bb1a5ad9ffb618748fdc373fc39a77c9ee7c,2593

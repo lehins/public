@@ -43,7 +43,7 @@ instance FromJSON Hour where
 
 instance Binary Hour where
   put (Hour h) = B.put h
-  get = mkHour . (toInteger @Int8) =<< B.get
+  get = mkHour . toInteger @Int8 =<< B.get
 
 patternMatchFailure :: MonadFail m => Maybe Integer -> m Hour
 patternMatchFailure mh = do

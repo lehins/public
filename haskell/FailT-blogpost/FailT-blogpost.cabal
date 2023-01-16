@@ -28,6 +28,8 @@ library
   exposed-modules:     Lib
                      , FailT.Array
                      , FailT.ExceptT
+                     , FailT.Vector
+                     , Result
 
   other-modules:
   build-depends:       FailT
@@ -36,11 +38,13 @@ library
                      , attoparsec
                      , base >= 4.8 && < 5
                      , binary
+                     , either-result
                      , mtl
                      , rio
                      , scientific
                      , time
                      , transformers
+                     , vector
 
   default-language:    Haskell2010
   ghc-options:         -Wall
