@@ -1,0 +1,31 @@
+name:                errort-is-deprecated-but-exceptt-doesnt-fit
+version:             0.1.0.0
+synopsis:            Short description
+description:         Please see the README on GitHub at <https://github.com/lehins/public#readme>
+homepage:            https://github.com/lehins/public
+license:             BSD3
+license-file:        LICENSE
+author:              Alexey Kuleshevich
+maintainer:          alexey@kuleshevi.ch
+copyright:           2023 Alexey Kuleshevich
+category:            Algorithms
+build-type:          Simple
+extra-source-files:  README.md
+                   , CHANGELOG.md
+cabal-version:       1.18
+
+library
+  hs-source-dirs:      src
+  exposed-modules:     Lib
+
+  other-modules:
+  build-depends:       base >= 4.8 && < 5
+                     , FailT
+                     , mtl
+                     , transformers
+
+  default-language:    Haskell2010
+  ghc-options:         -Wall
+                       -Wincomplete-record-updates
+                       -Wincomplete-uni-patterns
+                       -Wredundant-constraints
