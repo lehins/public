@@ -4,8 +4,6 @@ module Lib where
 import Control.Monad.Trans.Fail.String
 import Control.Monad.Trans.Except
 
-
-
 newtype ResultT m a = ResultT (ExceptT String m a)
   deriving (Functor, Applicative, Monad)
 
