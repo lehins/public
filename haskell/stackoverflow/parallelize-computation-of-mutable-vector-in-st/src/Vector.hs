@@ -13,7 +13,6 @@ module Vector
 
 import Data.Massiv.Array as A hiding (forM_, map, sum, mapM)
 import Data.Massiv.Array.Unsafe as A
-import Control.Monad.Primitive
 import qualified Data.Vector as Vb
 import qualified Data.Vector.Mutable as Vm
 import qualified Data.Vector.Generic.Mutable as Vg
@@ -24,7 +23,7 @@ import Data.Char(digitToInt)
 import Data.Vector.Strategies
 import Control.Concurrent.Async (forConcurrently_)
 import System.IO.Unsafe
-import Control.Scheduler (Comp(Par), runBatch_, withScheduler_)
+import Control.Scheduler (runBatch_, withScheduler_)
 import UnliftIO.Async (pooledForConcurrently_)
 import Control.Parallel (par)
 
@@ -45,7 +44,7 @@ examplePar n = runST $ do
 
 
 exampleParVector :: Int -> Vb.Vector Int
-exampleParVector n = example n `using` parVector (2 ^ (n - 5))
+exampleParVector n = example n `using` parVector 1
 
 -- exampleMonadPar :: Int -> Vb.Vector Int
 -- exampleMonadPar n = runST $ do
@@ -127,11 +126,11 @@ example n = runST $ do
 
   Gg.unsafeFreeze m
 
-example' :: Int -> Vb.Vector Int
+example' :: Int -> A.Vector BL Int
 example' n = runST $ do
-  m <- Vg.new (2^n) :: ST s (Vm.STVector s Int)
+  m <- A.unsafeNew (Sz1 (2^n))
 
-  Vg.unsafeWrite m 0 (1)
+  A.unsafeWrite m 0 (1)
 
   getEntries <- makeChoiceLists n
 
@@ -140,11 +139,11 @@ example' n = runST $ do
     let newEntries = getEntries n i
     forM_ newEntries $ \e -> do
       let v = bogus p e
-      v `par` Vg.unsafeWrite m e v
+      v `par` A.unsafeWrite m e v
 
-  Gg.unsafeFreeze m
+  A.unsafeFreeze Seq m
 
-makeChoiceLists :: forall m .(PrimMonad m, MonadThrow m) => Int -> m (Int -> Int -> [Int])
+makeChoiceLists :: forall m . PrimMonad m => Int -> m (Int -> Int -> [Int])
 makeChoiceLists n = do
   ma :: MMatrix (PrimState m) BL [Int] <- A.unsafeNew (Sz2 (n + 1) (n + 1))
   forM_ [0 .. n] $ \i -> do
@@ -158,7 +157,7 @@ makeChoiceLists n = do
       let result = left ++ map ((2 ^ (i - 1)) +) right
       A.write ma (i :. j) result
   a <- A.unsafeFreeze Seq ma
-  pure $ \ i j -> A.index' a (i :. j)
+  pure $ \ i j -> A.unsafeIndex a (i :. j)
 {-# INLINEABLE makeChoiceLists #-}
 
 choiceList :: Int -> Int -> [Int]
@@ -177,11 +176,11 @@ prev m n i = do
   return (sum e)
 
 prev' ::
-  PrimMonad m => (Int -> Int -> [Int]) -> Vm.MVector (PrimState m) Int -> Int -> Int -> m Integer
+  PrimMonad m => (Int -> Int -> [Int]) -> A.MVector (PrimState m) BL Int -> Int -> Int -> m Integer
 prev' _ _ _ 0 = return 1
 prev' f m n i = do
   let chs = f n i
-  v <- mapM (\k -> Vg.unsafeRead m k ) chs
+  v <- mapM (\k -> A.unsafeRead m k ) chs
   let e = map (\k -> toInteger k ) v
   return (sum e)
 
